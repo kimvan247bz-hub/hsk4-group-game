@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Chỉ cho phép đọc/ghi trong các phòng chơi, và chỉ khi đã vào trang (đăng nhập ẩn danh tự động).
+    match /rooms/{room}/{coll}/{doc} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && coll in ['players', 'rounds', 'ans', 'grades', 'game']
+        && request.resource.data.size() < 40;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
