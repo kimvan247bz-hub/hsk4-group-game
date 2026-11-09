@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Đặt Câu Nhanh Bài 14</title>
+<title>Đặt Câu Nhanh HSK4</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -127,7 +127,7 @@ mark{background:var(--gold-soft);color:var(--ink);padding:0 2px;border-radius:3p
 .words button{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:3px 10px;font-family:var(--f-hz);font-size:1.02rem}
 .words button.used{opacity:.4;text-decoration:line-through}
 .words button[aria-pressed=true]{background:var(--jade);color:var(--sheet);border-color:var(--jade);opacity:1;text-decoration:none}
-select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);max-width:100%;min-width:0}
 /* spreadsheet */
 .sheet-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--sheet)}
 table.sheet{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem}
@@ -162,7 +162,7 @@ body{margin:0}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <div class="brand"><span class="hz">造句</span><div><div class="t">Đặt câu nhanh · Bài 14</div><div class="s">照片还是“照骗”？ — Msutong Trung cấp 2</div></div></div>
+  <div class="brand"><span class="hz">造句</span><div><div class="t">Đặt câu nhanh · HSK4</div><div class="s">Msutong Trung cấp 2</div></div></div>
   <div class="chips" id="chips"></div>
 </div></header>
 
@@ -170,17 +170,28 @@ body{margin:0}
   <div id="banner"></div>
   <div id="app"><div class="panel empty">Đang kết nối phòng học…</div></div>
   <section>
-    <div class="secthead"><h2>Bảng điểm</h2><span class="hint">Bấm vào một hàng để xem câu và lời góp ý</span></div>
+    <div class="secthead"><h2>Bảng điểm</h2><span class="hint">Bấm vào một hàng để xem câu và lời góp ý</span><span id="resetBox"></span></div>
     <div class="sheet-wrap"><table class="sheet" id="sheet"></table></div>
   </section>
 </main>
 <div id="toast" class="toast" hidden></div>
 
 <script>
-const VOCAB = [{"w":"颜色","p":"yánsè","t":"N","m":"màu sắc","e":"好像第一张颜色更亮，但是第二张更清楚。","g":"Từ chính"},{"w":"照骗","p":"zhàopiàn","t":"VP","m":"“ảnh lừa” — ảnh chỉnh sửa quá đà, khác xa thực tế (chơi chữ với 照片)","e":"什么？照骗？李梅，你是在教他们“照骗”的方法吗？","g":"Từ chính"},{"w":"骗人","p":"piàn rén","t":"VP","m":"lừa người, lừa gạt","e":"赵亮说的不是“照片”，是“照骗”，“骗人”的“骗”。","g":"Từ chính"},{"w":"微博","p":"Wēibó","t":"","m":"Weibo (mạng xã hội Trung Quốc, giống Twitter)","e":"你对现在微博上和微信朋友圈里的一些照片印象如何？","g":"Từ chính"},{"w":"微信","p":"Wēixìn","t":"","m":"WeChat (ứng dụng nhắn tin & mạng xã hội)","e":"你对现在微博上和微信朋友圈里的一些照片印象如何？","g":"Từ chính"},{"w":"艺术照","p":"yìshùzhào","t":"NP","m":"ảnh nghệ thuật","e":"不管是人还是风景，都像艺术照。","g":"Từ chính"},{"w":"开玩笑","p":"kāi wánxiào","t":"VP","m":"nói đùa, đùa giỡn","e":"说“照骗”是开玩笑的。","g":"Từ chính"},{"w":"现象","p":"xiànxiàng","t":"N","m":"hiện tượng","e":"因为大家都喜欢美好的东西，所以才有这样的现象吧。","g":"Từ chính"},{"w":"下载","p":"xiàzài","t":"V","m":"tải xuống (download)","e":"可以下载很多修图软件，我的手机里就有。","g":"Từ chính"},{"w":"修图","p":"xiū tú","t":"VP","m":"chỉnh sửa ảnh, photoshop","e":"大家拍了照以后修一修图。","g":"Từ chính"},{"w":"软件","p":"ruǎnjiàn","t":"N","m":"phần mềm, ứng dụng","e":"可以下载很多修图软件。","g":"Từ chính"},{"w":"适当","p":"shìdàng","t":"A","m":"thích hợp, vừa phải","e":"拍了照片，适当美化一下给别人看。","g":"Từ chính"},{"w":"美化","p":"měihuà","t":"V","m":"làm đẹp, tô điểm","e":"适当美化一下给别人看，自己高兴，看的人也舒服。","g":"Từ chính"},{"w":"流口水","p":"liú kǒushuǐ","t":"VP","m":"chảy nước miếng, thèm nhỏ dãi","e":"杰克，我看得都流口水了。","g":"Từ chính"},{"w":"做法","p":"zuòfǎ","t":"N","m":"cách làm, cách nấu","e":"我自己学着网上的做法做的。","g":"Từ chính"},{"w":"过度","p":"guòdù","t":"A","m":"quá mức, quá độ","e":"就是指照片过度修图，照片就成了“照骗”。","g":"Từ chính"},{"w":"技术","p":"jìshù","t":"N","m":"kỹ thuật, công nghệ","e":"现在的修图技术可以把我们脑海里想的变成现实。","g":"Từ chính"},{"w":"脑海","p":"nǎohǎi","t":"N","m":"trong đầu, tâm trí","e":"可以把我们脑海里想的变成现实。","g":"Từ chính"},{"w":"现实","p":"xiànshí","t":"N","m":"hiện thực, thực tế","e":"可以把我们脑海里想的变成现实。","g":"Từ chính"},{"w":"还原","p":"huányuán","t":"V","m":"khôi phục lại như cũ","e":"过几天不喜欢美化的了，还可以再把它还原回来。","g":"Từ chính"},{"w":"心知肚明","p":"xīnzhī-dùmíng","t":"","m":"trong lòng biết rõ (dù không nói ra)","e":"看到的照片是不是“照骗”，大家心知肚明。","g":"Từ chính"},{"w":"时代","p":"shídài","t":"N","m":"thời đại","e":"这个时代是多元的，什么都可以有。","g":"Từ chính"},{"w":"多元","p":"duōyuán","t":"A","m":"đa dạng, đa nguyên","e":"这个时代是多元的，什么都可以有。","g":"Từ chính"},{"w":"自拍","p":"zì pāi","t":"VP","m":"tự chụp, chụp selfie","e":"来，来，来，我们自拍一张。","g":"Từ chính"},{"w":"美颜","p":"měi yán","t":"VP","m":"làm đẹp khuôn mặt (chế độ làm đẹp khi chụp)","e":"杰克，你一定要用美颜相机啊！","g":"Từ chính"},{"w":"相机","p":"xiàngjī","t":"N","m":"máy ảnh; ứng dụng camera","e":"杰克，你一定要用美颜相机啊！","g":"Từ chính"},{"w":"普遍","p":"pǔbiàn","t":"A","m":"phổ biến","e":"“照骗”在我们的生活中普遍存在。","g":"Phó bài khoá"},{"w":"社交","p":"shèjiāo","t":"N","m":"giao tiếp xã hội; mạng xã hội","e":"我们平时用的一些社交软件，如微博和微信……","g":"Phó bài khoá"},{"w":"上传","p":"shàngchuán","t":"V","m":"tải lên (upload)","e":"很多图片都是经过美化和修图以后上传的。","g":"Phó bài khoá"},{"w":"一致","p":"yízhì","t":"A","m":"nhất trí, giống nhau, khớp nhau","e":"网上看到的不少照片跟真人和风景不一致。","g":"Phó bài khoá"},{"w":"两面性","p":"liǎngmiànxìng","t":"N","m":"tính hai mặt","e":"当然，任何事情都有两面性。","g":"Phó bài khoá"},{"w":"丧失","p":"sàngshī","t":"V","m":"đánh mất, mất đi","e":"过度美化就丧失了一定的真实性。","g":"Phó bài khoá"},{"w":"距离","p":"jùlí","t":"N","m":"khoảng cách","e":"增加了人的感觉和真实的事物之间的距离。","g":"Phó bài khoá"},{"w":"皆","p":"jiē","t":"Adv","m":"đều (văn viết, = 都)","e":"看来，爱美之心，人皆有之。","g":"Phó bài khoá"},{"w":"相册","p":"xiàngcè","t":"N","m":"album ảnh","e":"李梅家有很多相册。","g":"Bài đọc"},{"w":"全家福","p":"quánjiāfú","t":"N","m":"ảnh cả gia đình","e":"有几本里面放的都是全家福。","g":"Bài đọc"},{"w":"记录","p":"jìlù","t":"V","m":"ghi lại, lưu lại","e":"这些全家福记录着李梅家的美好时光。","g":"Bài đọc"},{"w":"时光","p":"shíguāng","t":"N","m":"thời gian, quãng thời gian","e":"这些全家福记录着李梅家的美好时光。","g":"Bài đọc"},{"w":"照相馆","p":"zhàoxiàngguǎn","t":"NP","m":"tiệm chụp ảnh","e":"全家人每年都要去照相馆拍一张全家福。","g":"Bài đọc"},{"w":"变化","p":"biànhuà","t":"N","m":"sự thay đổi","e":"看到了李梅从小到大的变化。","g":"Bài đọc"},{"w":"聚","p":"jù","t":"V","m":"tụ họp, sum họp","e":"全家人聚在一起的时候拍张合影。","g":"Bài đọc"},{"w":"打印","p":"dǎyìn","t":"V","m":"in ra","e":"很多人不会将全家福打印出来。","g":"Bài đọc"}];
+const LESSONS = {"11":{"title":"世界无烟日","words":[{"w":"抽烟","p":"chōu yān","t":"VP","m":"hút thuốc","e":"有个人一直在我前面抽烟。","g":"Từ chính"},{"w":"吸","p":"xī","t":"V","m":"hít, hút vào","e":"我跟在他后面，吸了不少二手烟。","g":"Từ chính"},{"w":"二手烟","p":"èrshǒuyān","t":"N","m":"khói thuốc thụ động","e":"吸二手烟对人的身体危害不小。","g":"Từ chính"},{"w":"影响","p":"yǐngxiǎng","t":"V","m":"ảnh hưởng, tác động","e":"那样的话，也影响我后面的人。","g":"Từ chính"},{"w":"无烟日","p":"Wúyān Rì","t":"PN","m":"Ngày không thuốc lá","e":"真希望今天是世界无烟日。","g":"Từ chính"},{"w":"卫生","p":"wèishēng","t":"N","m":"vệ sinh, y tế (sức khoẻ cộng đồng)","e":"吸烟是当今世界最大的公共卫生问题之一。","g":"Từ chính"},{"w":"总数","p":"zǒngshù","t":"N","m":"tổng số","e":"全世界吸烟者总数约为13亿。","g":"Từ chính"},{"w":"占","p":"zhàn","t":"V","m":"chiếm","e":"占世界人口的百分之二十五左右。","g":"Từ chính"},{"w":"人口","p":"rénkǒu","t":"N","m":"dân số","e":"占世界人口的百分之二十五左右。","g":"Từ chính"},{"w":"百分之……","p":"bǎi fēn zhī…","t":"","m":"… phần trăm","e":"占百分之十；百分之二十五左右。","g":"Từ chính"},{"w":"危害","p":"wēihài","t":"V","m":"gây hại, làm nguy hại","e":"二手烟对人的身体危害不小。","g":"Từ chính"},{"w":"严肃","p":"yánsù","t":"A","m":"nghiêm túc, nghiêm trọng","e":"你们俩在聊什么呢？这么严肃。","g":"Từ chính"},{"w":"香烟","p":"xiāngyān","t":"N","m":"thuốc lá (điếu)","e":"我不喜欢香烟的味道。","g":"Từ chính"},{"w":"压力","p":"yālì","t":"N","m":"áp lực, căng thẳng","e":"他说压力大的时候抽一支烟，可以减轻压力。","g":"Từ chính"},{"w":"减轻","p":"jiǎnqīng","t":"V","m":"giảm nhẹ, giảm bớt","e":"抽一支烟，可以减轻压力。","g":"Từ chính"},{"w":"场所","p":"chǎngsuǒ","t":"N","m":"nơi, địa điểm","e":"现在中国在公共场所都禁烟了。","g":"Từ chính"},{"w":"禁烟","p":"jìn yān","t":"VP","m":"cấm hút thuốc","e":"现在中国在公共场所都禁烟了。","g":"Từ chính"},{"w":"觉得","p":"juéde","t":"V","m":"cảm thấy, cho rằng","e":"那时她觉得女孩子抽烟很酷。","g":"Từ chính"},{"w":"酷","p":"kù","t":"A","m":"ngầu, \\\"cool\\\"","e":"那时她觉得女孩子抽烟很酷。","g":"Từ chính"},{"w":"存","p":"cún","t":"V","m":"cất giữ, để dành, gửi (tiền)","e":"让奶奶存起来，一年下来，奶奶存了好多钱。","g":"Từ chính"},{"w":"不过","p":"búguò","t":"Conj","m":"nhưng, có điều","e":"不过，最后还是奶奶的一句话让爷爷决定不抽烟了。","g":"Từ chính"},{"w":"烟灰缸","p":"yānhuīgāng","t":"N","m":"cái gạt tàn thuốc","e":"抽烟的时候，你自己就是个烟灰缸。","g":"Từ chính"},{"w":"同情","p":"tóngqíng","t":"V","m":"thông cảm, đồng cảm","e":"赵亮非常同情杰克。","g":"Từ mở rộng"},{"w":"根据","p":"gēnjù","t":"Prep","m":"căn cứ vào, theo","e":"根据世界卫生组织2008年的报告……","g":"Từ mở rộng"},{"w":"差不多","p":"chàbuduō","t":"A&Adv","m":"gần như, xấp xỉ","e":"差不多占世界人口的百分之二十五。","g":"Từ mở rộng"},{"w":"借口","p":"jièkǒu","t":"N","m":"cái cớ, lý do thoái thác","e":"这是吸烟的人为自己吸烟找的借口。","g":"Từ mở rộng"},{"w":"因此","p":"yīncǐ","t":"Conj","m":"vì vậy, do đó","e":"奶奶因此存了好多钱。","g":"Từ mở rộng"},{"w":"起作用","p":"qǐ zuòyòng","t":"VP","m":"có tác dụng, phát huy tác dụng","e":"最后还是奶奶说的一句话起了作用。","g":"Từ mở rộng"},{"w":"感兴趣","p":"gǎn xìngqù","t":"VP","m":"có hứng thú, quan tâm","e":"艾玛对李梅奶奶的办法很感兴趣。","g":"Từ mở rộng"},{"w":"举行","p":"jǔxíng","t":"V","m":"tổ chức (hội nghị, cuộc thi…)","e":"世界卫生组织在日本东京举行了第六届吸烟与健康国际会议。","g":"Từ mở rộng"},{"w":"选择","p":"xuǎnzé","t":"V","m":"lựa chọn","e":"选择5月31日作为世界无烟日。","g":"Từ mở rộng"},{"w":"儿童节","p":"Értóng Jié","t":"N","m":"Ngày Quốc tế Thiếu nhi (1/6)","e":"第二天是国际儿童节。","g":"Từ mở rộng"},{"w":"数量","p":"shùliàng","t":"N","m":"số lượng","e":"为减少吸烟者的数量……","g":"Từ mở rộng"},{"w":"社会","p":"shèhuì","t":"N","m":"xã hội","e":"减轻吸烟对社会带来的危害。","g":"Từ mở rộng"},{"w":"杂志","p":"zázhì","t":"N","m":"tạp chí","e":"瑞典的一本杂志上说……","g":"Từ mở rộng"},{"w":"而","p":"ér","t":"Conj","m":"mà, còn (biểu thị đối lập)","e":"女人一般希望找一个不吸烟的男士，而女士要小心吸烟会让自己老得快。","g":"Từ mở rộng"},{"w":"包装","p":"bāozhuāng","t":"N","m":"bao bì, vỏ hộp","e":"香烟的外包装上必须印上警示句子和图片。","g":"Từ mở rộng"},{"w":"处罚","p":"chǔfá","t":"V","m":"xử phạt","e":"有的国家则对在公共场所吸烟者实施很重的处罚。","g":"Từ mở rộng"},{"w":"罚款","p":"fákuǎn","t":"N","m":"tiền phạt","e":"要交50～150美元不等的罚款。","g":"Từ mở rộng"},{"w":"鞭子","p":"biānzi","t":"N","m":"roi","e":"要交500新加坡元的罚款或被打4鞭子。","g":"Từ mở rộng"},{"w":"瑞典","p":"Ruìdiǎn","t":"PN","m":"Thụy Điển","e":"瑞典的一本杂志上说……","g":"Từ mở rộng"},{"w":"不丹","p":"Bùdān","t":"PN","m":"Bhutan","e":"2004年，不丹全面禁烟。","g":"Từ mở rộng"},{"w":"新西兰","p":"Xīnxīlán","t":"PN","m":"New Zealand","e":"新西兰和泰国的香烟外包装就让人看了非常不舒服。","g":"Từ mở rộng"},{"w":"泰国","p":"Tàiguó","t":"PN","m":"Thái Lan","e":"新西兰和泰国的香烟外包装就让人看了非常不舒服。","g":"Từ mở rộng"},{"w":"墨西哥","p":"Mòxīgē","t":"PN","m":"Mexico","e":"在墨西哥，在公共场所吸烟的人要交罚款。","g":"Từ mở rộng"},{"w":"新加坡","p":"Xīnjiāpō","t":"PN","m":"Singapore","e":"在新加坡，在公共场所吸烟者最高要交2000新加坡元的罚款。","g":"Từ mở rộng"}]},"12":{"title":"到中国人家里做客","words":[{"w":"课题","p":"kètí","t":"N","m":"đề tài, đề án (nghiên cứu, học tập)","e":"艾玛上个星期为完成课题，去一个中国人家里过了一天。","g":"Từ chính"},{"w":"放松","p":"fàngsōng","t":"V","m":"thả lỏng, thư giãn","e":"我是从紧张到放松，最后非常喜欢。","g":"Từ chính"},{"w":"陌生","p":"mòshēng","t":"A","m":"lạ, xa lạ, không quen","e":"我要在一个陌生的中国家庭做一天客。","g":"Từ chính"},{"w":"感受","p":"gǎnshòu","t":"V","m":"cảm nhận, trải nghiệm","e":"感受他们的真实生活。","g":"Từ chính"},{"w":"网上","p":"wǎng shang","t":"NP","m":"trên mạng","e":"我是在网上联系的。","g":"Từ chính"},{"w":"接待","p":"jiēdài","t":"V","m":"tiếp đón, đón tiếp","e":"刚开始有五个家庭愿意接待我。","g":"Từ chính"},{"w":"熨烫","p":"yùntàng","t":"V","m":"là, ủi (quần áo)","e":"奶奶还喜欢熨烫衣服。","g":"Từ chính"},{"w":"建筑","p":"jiànzhù","t":"N","m":"kiến trúc, công trình xây dựng","e":"爸爸是建筑工程师。","g":"Từ chính"},{"w":"工程师","p":"gōngchéngshī","t":"N","m":"kỹ sư","e":"爸爸是建筑工程师。","g":"Từ chính"},{"w":"叫","p":"jiào","t":"V","m":"tên là, gọi là","e":"老大叫龙龙，老二叫梅梅。","g":"Từ chính"},{"w":"改变","p":"gǎibiàn","t":"V","m":"thay đổi","e":"不要因为我而有什么改变。","g":"Từ chính"},{"w":"老外","p":"lǎowài","t":"N","m":"người nước ngoài (khẩu ngữ, thân mật)","e":"家里突然多了个陌生人，还是个老外。","g":"Từ chính"},{"w":"放不开","p":"fàng bu kāi","t":"VP","m":"ngại ngùng, không thoải mái, gò bó","e":"可是我自己也很放不开。","g":"Từ chính"},{"w":"习惯","p":"xíguàn","t":"N","m":"thói quen","e":"注意观察他们家的人都有怎样的生活习惯。","g":"Từ chính"},{"w":"印象","p":"yìnxiàng","t":"N","m":"ấn tượng","e":"快跟我们说说你有哪些特别的印象。","g":"Từ chính"},{"w":"几乎","p":"jīhū","t":"Adv","m":"gần như, hầu như","e":"梅梅在家里几乎就是哥哥的影子。","g":"Từ chính"},{"w":"影子","p":"yǐngzi","t":"N","m":"cái bóng","e":"梅梅在家里几乎就是哥哥的影子。","g":"Từ chính"},{"w":"打量","p":"dǎliang","t":"V","m":"nhìn từ đầu đến chân, quan sát kỹ (người)","e":"梅梅还一直打量我。","g":"Từ chính"},{"w":"筷子","p":"kuàizi","t":"N","m":"đôi đũa","e":"看到他们都动筷子了，我才拿起我的筷子。","g":"Từ chính"},{"w":"犯错","p":"fàn cuò","t":"VP","m":"phạm lỗi, mắc sai lầm","e":"先观察，再行动，这样就不容易犯错了。","g":"Từ chính"},{"w":"温和","p":"wēnhé","t":"A","m":"ôn hoà, dịu dàng","e":"大人跟孩子说话很温和。","g":"Từ chính"},{"w":"幽默","p":"yōumò","t":"A","m":"hài hước, dí dỏm","e":"大人跟孩子说话很温和，也很幽默。","g":"Từ chính"},{"w":"礼貌","p":"lǐmào","t":"N","m":"lễ phép, lịch sự","e":"孩子对大人也很有礼貌。","g":"Từ chính"},{"w":"聊天儿","p":"liáo tiānr","t":"V","m":"nói chuyện phiếm, tán gẫu","e":"你跟他们家的老人聊天儿了吗？","g":"Từ chính"},{"w":"美好","p":"měihǎo","t":"A","m":"tốt đẹp","e":"让我感受到了中国家庭的美好生活。","g":"Từ chính"},{"w":"待","p":"dāi","t":"V","m":"ở lại, lưu lại","e":"到一个陌生的中国家庭待一天。","g":"Từ mở rộng"},{"w":"真实","p":"zhēnshí","t":"A","m":"chân thực, thật","e":"感受一下中国人真实的家庭生活。","g":"Từ mở rộng"},{"w":"亲切","p":"qīnqiè","t":"A","m":"thân thiết, niềm nở, ân cần","e":"爷爷、奶奶对艾玛非常亲切。","g":"Từ mở rộng"},{"w":"坐立不安","p":"zuòlì-bù'ān","t":"IDM","m":"đứng ngồi không yên","e":"艾玛自己也有点儿坐立不安。","g":"Từ mở rộng"},{"w":"周到","p":"zhōudào","t":"A","m":"chu đáo","e":"爸爸、妈妈对爷爷、奶奶照顾得很周到。","g":"Từ mở rộng"},{"w":"热点","p":"rèdiǎn","t":"N","m":"điểm nóng, chủ đề được quan tâm","e":"聊各种热点话题。","g":"Từ mở rộng"},{"w":"各自","p":"gèzì","t":"A","m":"mỗi người, riêng từng người","e":"聊一家人最近各自读到的书和文章。","g":"Từ mở rộng"},{"w":"弹钢琴","p":"tán gāngqín","t":"VP","m":"chơi đàn piano","e":"小明从小学习弹钢琴。","g":"Từ mở rộng"},{"w":"吉他","p":"jítā","t":"N","m":"đàn ghi-ta","e":"小明又想学习弹吉他。","g":"Từ mở rộng"},{"w":"结婚","p":"jié hūn","t":"V","m":"kết hôn","e":"这一天也是爸爸、妈妈的结婚纪念日。","g":"Từ mở rộng"},{"w":"纪念日","p":"jìniànrì","t":"N","m":"ngày kỷ niệm","e":"这一天也是爸爸、妈妈的结婚纪念日。","g":"Từ mở rộng"},{"w":"庆祝","p":"qìngzhù","t":"V","m":"chúc mừng, ăn mừng","e":"爸爸、妈妈没有任何要庆祝的意思。","g":"Từ mở rộng"},{"w":"快乐","p":"kuàilè","t":"A","m":"vui vẻ, hạnh phúc","e":"要是大人们都这样，生活就会少很多快乐。","g":"Từ mở rộng"},{"w":"订","p":"dìng","t":"V","m":"đặt (hàng, vé, chỗ…)","e":"他在网上订了一大束鲜花。","g":"Từ mở rộng"},{"w":"柠檬","p":"níngméng","t":"N","m":"quả chanh vàng","e":"为一家人准备好柠檬蜂蜜水。","g":"Từ mở rộng"},{"w":"蜂蜜","p":"fēngmì","t":"N","m":"mật ong","e":"为一家人准备好柠檬蜂蜜水。","g":"Từ mở rộng"},{"w":"烤箱","p":"kǎoxiāng","t":"N","m":"lò nướng","e":"将面包片放进烤箱。","g":"Từ mở rộng"},{"w":"煎","p":"jiān","t":"V","m":"rán, chiên (ít dầu)","e":"煎出了又嫩又好看的爱心形状的荷包蛋。","g":"Từ mở rộng"},{"w":"嫩","p":"nèn","t":"A","m":"non, mềm; (đồ ăn) chín tới, không quá chín","e":"煎出了又嫩又好看的荷包蛋。","g":"Từ mở rộng"},{"w":"荷包蛋","p":"hébāodàn","t":"N","m":"trứng ốp la (trứng chần/ốp nguyên lòng đỏ)","e":"煎出了又嫩又好看的爱心形状的荷包蛋。","g":"Từ mở rộng"},{"w":"情调","p":"qíngdiào","t":"N","m":"tình điệu, sự lãng mạn, tinh tế","e":"老爸，你不是我想的那样没情调。","g":"Từ mở rộng"},{"w":"西红柿","p":"xīhóngshì","t":"N","m":"cà chua","e":"她说少不了西红柿炒鸡蛋。","g":"Từ mở rộng"}]},"13":{"title":"中国的广场舞","words":[{"w":"活动","p":"huódòng","t":"N","m":"hoạt động","e":"中国很多城市的老人，早晚的活动都安排得很丰富。","g":"Từ chính"},{"w":"茶馆儿","p":"cháguǎnr","t":"N","m":"quán trà","e":"茶馆儿外面是个小广场。","g":"Từ chính"},{"w":"广场","p":"guǎngchǎng","t":"N","m":"quảng trường","e":"外面的广场上怎么那么多大妈在跳广场舞？","g":"Từ chính"},{"w":"广场舞","p":"guǎngchǎngwǔ","t":"N","m":"nhảy quảng trường (điệu nhảy tập thể ở nơi công cộng)","e":"不少大妈在那里跳广场舞。","g":"Từ chính"},{"w":"糊涂","p":"hútu","t":"A","m":"mơ hồ, không hiểu rõ, lẫn lộn","e":"不过我也有点儿糊涂了。","g":"Từ chính"},{"w":"酒吧","p":"jiǔbā","t":"N","m":"quán bar","e":"只有周末的时候，酒吧的人会多一些。","g":"Từ chính"},{"w":"跳舞","p":"tiào wǔ","t":"V","m":"nhảy, khiêu vũ","e":"天天晚上都有这么多大妈在跳舞。","g":"Từ chính"},{"w":"锻炼","p":"duànliàn","t":"V","m":"rèn luyện (thân thể), tập thể dục","e":"早上也有很多老人在公园或者小区花园锻炼身体。","g":"Từ chính"},{"w":"安排","p":"ānpái","t":"V","m":"sắp xếp, bố trí","e":"早晚的活动都安排得很丰富。","g":"Từ chính"},{"w":"丰富","p":"fēngfù","t":"A","m":"phong phú, dồi dào","e":"早晚的活动都安排得很丰富。","g":"Từ chính"},{"w":"幸福","p":"xìngfú","t":"A","m":"hạnh phúc","e":"中国的老人真幸福啊！","g":"Từ chính"},{"w":"孤单","p":"gūdān","t":"A","m":"cô đơn, lẻ loi","e":"有了这样的生活，人老了就不怕孤单了。","g":"Từ chính"},{"w":"看法","p":"kànfǎ","t":"N","m":"cách nhìn, quan điểm, ý kiến","e":"一些朋友对广场舞有着不同的看法。","g":"Từ chính"},{"w":"扰民","p":"rǎo mín","t":"V","m":"làm phiền người dân xung quanh","e":"有的说广场舞扰民。","g":"Từ chính"},{"w":"编舞","p":"biān wǔ","t":"V","m":"biên đạo múa","e":"而且还自己编舞，吸引了很多人参加。","g":"Từ chính"},{"w":"吸引","p":"xīyǐn","t":"V","m":"thu hút, hấp dẫn","e":"吸引了很多人参加。","g":"Từ chính"},{"w":"害羞","p":"hài xiū","t":"A","m":"xấu hổ, ngại ngùng, e thẹn","e":"是不是因为男性比较害羞？","g":"Từ chính"},{"w":"自信","p":"zìxìn","t":"A","m":"tự tin","e":"年龄大的男性不自信？","g":"Từ chính"},{"w":"爱好","p":"àihào","t":"N","m":"sở thích","e":"跳不跳广场舞跟个人的爱好有关系。","g":"Từ chính"},{"w":"细致","p":"xìzhì","t":"A","m":"tỉ mỉ, kỹ lưỡng","e":"杰克虽然不会跳广场舞，但是观察得挺细致啊！","g":"Từ chính"},{"w":"慧眼","p":"huìyǎn","t":"N","m":"con mắt tinh đời, tuệ nhãn","e":"我有一双“慧眼”。","g":"Từ chính"},{"w":"研究","p":"yánjiū","t":"V","m":"nghiên cứu","e":"我觉得我可以研究一下中国的广场舞。","g":"Từ chính"},{"w":"其实","p":"qíshí","t":"Adv","m":"thật ra, kỳ thực","e":"其实，在中国的很多城市里，老人们早晚的活动都安排得很丰富。","g":"Từ mở rộng"},{"w":"国际化","p":"guójìhuà","t":"","m":"mang tính quốc tế, quốc tế hoá","e":"他发现广场舞的音乐很国际化。","g":"Từ mở rộng"},{"w":"受不了","p":"shòu bu liǎo","t":"VP","m":"không chịu nổi","e":"香得我受不了。","g":"Từ mở rộng"},{"w":"香菜","p":"xiāngcài","t":"N","m":"rau mùi, ngò","e":"我的中国朋友特别爱吃香菜。","g":"Từ mở rộng"},{"w":"臭豆腐","p":"chòudòufu","t":"N","m":"đậu phụ thối","e":"你们觉得中国的臭豆腐怎么样？","g":"Từ mở rộng"},{"w":"咖喱","p":"gālí","t":"N","m":"cà ri","e":"我们印度的咖喱很香。","g":"Từ mở rộng"},{"w":"泡菜","p":"pàocài","t":"N","m":"dưa muối, kim chi","e":"我们韩国的泡菜也很香。","g":"Từ mở rộng"},{"w":"香水","p":"xiāngshuǐ","t":"N","m":"nước hoa","e":"有的同学喜欢的香水，可能对我来说就受不了了。","g":"Từ mở rộng"}]},"14":{"title":"一张照片","words":[{"w":"颜色","p":"yánsè","t":"N","m":"màu sắc","e":"好像第一张颜色更亮，但是第二张更清楚。","g":"Từ chính"},{"w":"照骗","p":"zhàopiàn","t":"VP","m":"“ảnh lừa” — ảnh chỉnh sửa quá đà, khác xa thực tế (chơi chữ với 照片)","e":"什么？照骗？李梅，你是在教他们“照骗”的方法吗？","g":"Từ chính"},{"w":"骗人","p":"piàn rén","t":"VP","m":"lừa người, lừa gạt","e":"赵亮说的不是“照片”，是“照骗”，“骗人”的“骗”。","g":"Từ chính"},{"w":"微博","p":"Wēibó","t":"","m":"Weibo (mạng xã hội Trung Quốc, giống Twitter)","e":"你对现在微博上和微信朋友圈里的一些照片印象如何？","g":"Từ chính"},{"w":"微信","p":"Wēixìn","t":"","m":"WeChat (ứng dụng nhắn tin & mạng xã hội)","e":"你对现在微博上和微信朋友圈里的一些照片印象如何？","g":"Từ chính"},{"w":"艺术照","p":"yìshùzhào","t":"NP","m":"ảnh nghệ thuật","e":"不管是人还是风景，都像艺术照。","g":"Từ chính"},{"w":"开玩笑","p":"kāi wánxiào","t":"VP","m":"nói đùa, đùa giỡn","e":"说“照骗”是开玩笑的。","g":"Từ chính"},{"w":"现象","p":"xiànxiàng","t":"N","m":"hiện tượng","e":"因为大家都喜欢美好的东西，所以才有这样的现象吧。","g":"Từ chính"},{"w":"下载","p":"xiàzài","t":"V","m":"tải xuống (download)","e":"可以下载很多修图软件，我的手机里就有。","g":"Từ chính"},{"w":"修图","p":"xiū tú","t":"VP","m":"chỉnh sửa ảnh, photoshop","e":"大家拍了照以后修一修图。","g":"Từ chính"},{"w":"软件","p":"ruǎnjiàn","t":"N","m":"phần mềm, ứng dụng","e":"可以下载很多修图软件。","g":"Từ chính"},{"w":"适当","p":"shìdàng","t":"A","m":"thích hợp, vừa phải","e":"拍了照片，适当美化一下给别人看。","g":"Từ chính"},{"w":"美化","p":"měihuà","t":"V","m":"làm đẹp, tô điểm","e":"适当美化一下给别人看，自己高兴，看的人也舒服。","g":"Từ chính"},{"w":"流口水","p":"liú kǒushuǐ","t":"VP","m":"chảy nước miếng, thèm nhỏ dãi","e":"杰克，我看得都流口水了。","g":"Từ chính"},{"w":"做法","p":"zuòfǎ","t":"N","m":"cách làm, cách nấu","e":"我自己学着网上的做法做的。","g":"Từ chính"},{"w":"过度","p":"guòdù","t":"A","m":"quá mức, quá độ","e":"就是指照片过度修图，照片就成了“照骗”。","g":"Từ chính"},{"w":"技术","p":"jìshù","t":"N","m":"kỹ thuật, công nghệ","e":"现在的修图技术可以把我们脑海里想的变成现实。","g":"Từ chính"},{"w":"脑海","p":"nǎohǎi","t":"N","m":"trong đầu, tâm trí","e":"可以把我们脑海里想的变成现实。","g":"Từ chính"},{"w":"现实","p":"xiànshí","t":"N","m":"hiện thực, thực tế","e":"可以把我们脑海里想的变成现实。","g":"Từ chính"},{"w":"还原","p":"huányuán","t":"V","m":"khôi phục lại như cũ","e":"过几天不喜欢美化的了，还可以再把它还原回来。","g":"Từ chính"},{"w":"心知肚明","p":"xīnzhī-dùmíng","t":"","m":"trong lòng biết rõ (dù không nói ra)","e":"看到的照片是不是“照骗”，大家心知肚明。","g":"Từ chính"},{"w":"时代","p":"shídài","t":"N","m":"thời đại","e":"这个时代是多元的，什么都可以有。","g":"Từ chính"},{"w":"多元","p":"duōyuán","t":"A","m":"đa dạng, đa nguyên","e":"这个时代是多元的，什么都可以有。","g":"Từ chính"},{"w":"自拍","p":"zì pāi","t":"VP","m":"tự chụp, chụp selfie","e":"来，来，来，我们自拍一张。","g":"Từ chính"},{"w":"美颜","p":"měi yán","t":"VP","m":"làm đẹp khuôn mặt (chế độ làm đẹp khi chụp)","e":"杰克，你一定要用美颜相机啊！","g":"Từ chính"},{"w":"相机","p":"xiàngjī","t":"N","m":"máy ảnh; ứng dụng camera","e":"杰克，你一定要用美颜相机啊！","g":"Từ chính"},{"w":"普遍","p":"pǔbiàn","t":"A","m":"phổ biến","e":"“照骗”在我们的生活中普遍存在。","g":"Từ mở rộng"},{"w":"社交","p":"shèjiāo","t":"N","m":"giao tiếp xã hội; mạng xã hội","e":"我们平时用的一些社交软件，如微博和微信……","g":"Từ mở rộng"},{"w":"上传","p":"shàngchuán","t":"V","m":"tải lên (upload)","e":"很多图片都是经过美化和修图以后上传的。","g":"Từ mở rộng"},{"w":"一致","p":"yízhì","t":"A","m":"nhất trí, giống nhau, khớp nhau","e":"网上看到的不少照片跟真人和风景不一致。","g":"Từ mở rộng"},{"w":"两面性","p":"liǎngmiànxìng","t":"N","m":"tính hai mặt","e":"当然，任何事情都有两面性。","g":"Từ mở rộng"},{"w":"丧失","p":"sàngshī","t":"V","m":"đánh mất, mất đi","e":"过度美化就丧失了一定的真实性。","g":"Từ mở rộng"},{"w":"距离","p":"jùlí","t":"N","m":"khoảng cách","e":"增加了人的感觉和真实的事物之间的距离。","g":"Từ mở rộng"},{"w":"皆","p":"jiē","t":"Adv","m":"đều (văn viết, = 都)","e":"看来，爱美之心，人皆有之。","g":"Từ mở rộng"},{"w":"相册","p":"xiàngcè","t":"N","m":"album ảnh","e":"李梅家有很多相册。","g":"Bài đọc"},{"w":"全家福","p":"quánjiāfú","t":"N","m":"ảnh cả gia đình","e":"有几本里面放的都是全家福。","g":"Bài đọc"},{"w":"记录","p":"jìlù","t":"V","m":"ghi lại, lưu lại","e":"这些全家福记录着李梅家的美好时光。","g":"Bài đọc"},{"w":"时光","p":"shíguāng","t":"N","m":"thời gian, quãng thời gian","e":"这些全家福记录着李梅家的美好时光。","g":"Bài đọc"},{"w":"照相馆","p":"zhàoxiàngguǎn","t":"NP","m":"tiệm chụp ảnh","e":"全家人每年都要去照相馆拍一张全家福。","g":"Bài đọc"},{"w":"变化","p":"biànhuà","t":"N","m":"sự thay đổi","e":"看到了李梅从小到大的变化。","g":"Bài đọc"},{"w":"聚","p":"jù","t":"V","m":"tụ họp, sum họp","e":"全家人聚在一起的时候拍张合影。","g":"Bài đọc"},{"w":"打印","p":"dǎyìn","t":"V","m":"in ra","e":"很多人不会将全家福打印出来。","g":"Bài đọc"}]}};
+const LESSON_IDS = Object.keys(LESSONS).map(Number).sort((a,b)=>a-b);
+const VOCAB = LESSON_IDS.flatMap(L=>LESSONS[L].words.map(w=>({...w,L})));
+const wkey = w=>(w.L||14)+':'+w.w;
 const BONUS = [3,2,1,0];
 const S = {db:null,user:null,myId:null,players:{},rounds:{},ans:{},grades:{},current:0,loaded:false,
-  draft:'',draftGrades:{},pick:null,duration:90,openRow:null,busy:false,stageSig:''};
+  draft:'',draftGrades:{},pick:null,duration:90,openRow:null,busy:false,stageSig:'',
+  startFrom:1,offset:0,hbAt:0,lesson:'14',confirmReset:false};
+try{const l=localStorage.getItem('dcn_lesson'); if(l&&(l==='all'||LESSONS[l])) S.lesson=l}catch(e){}
+const ONLINE_MS=120000;
+const ms=ts=>ts&&typeof ts.toMillis==='function'?ts.toMillis():(typeof ts==='number'?ts:0);
+function isOnline(p){return p.uid===S.myId||(Date.now()+S.offset-ms(p.lastSeen))<ONLINE_MS}
+function visibleRounds(){return Object.values(S.rounds).filter(r=>r.n>=S.startFrom).sort((a,b)=>a.n-b.n)}
+function disp(n){return n-S.startFrom+1}
+function lessonTag(w){const L=w.L||14;return 'Bài '+L+(LESSONS[L]?' · '+LESSONS[L].title:'')}
 const RUBRIC=[
   {k:'tu',name:'Dùng từ khoá',short:'Từ',levels:['Thiếu từ khoá hoặc dùng sai nghĩa','Có từ nhưng dùng gượng, sai vị trí hoặc từ loại','Đúng nghĩa, đúng cách dùng, tự nhiên']},
   {k:'np',name:'Ngữ pháp và chữ viết',short:'NP',levels:['Sai nặng, đọc khó hiểu','Có 1–2 lỗi nhỏ (trợ từ, lượng từ, sai chữ…)','Không có lỗi']},
@@ -204,10 +215,11 @@ function playerList(){return Object.values(S.players).filter(p=>p&&p.uid).sort((
 function me(){return S.myId?S.players[seg(S.myId)]:null}
 
 function getSeen(n){
-  if(seen[n]) return seen[n];
-  let v=null; try{v=+sessionStorage.getItem('seen_'+n)||null}catch(e){}
-  if(!v){v=Date.now();try{sessionStorage.setItem('seen_'+n,String(v))}catch(e){}}
-  return seen[n]=v;
+  const r=S.rounds['r'+n], key='seen_'+(S.room||'')+'_'+n+'_'+(r?.startedAt||0);
+  if(seen[key]) return seen[key];
+  let v=null; try{v=+sessionStorage.getItem(key)||null}catch(e){}
+  if(!v){v=Date.now();try{sessionStorage.setItem(key,String(v))}catch(e){}}
+  return seen[key]=v;
 }
 function roundAnswers(n){return Object.values(S.ans).filter(a=>a.round===n).sort((a,b)=>a.elapsedMs-b.elapsedMs)}
 function roundGrades(n){return Object.values(S.grades).filter(g=>g.round===n)}
@@ -255,18 +267,33 @@ async function write(fn){
 async function join(){
   const v=$('#nick').value.trim().slice(0,24); if(!v){toast('Nhập tên trước nhé');return}
   try{localStorage.setItem('dcn_nick',v)}catch(e){}
-  await write(()=>S.db.collection('players').doc(seg(S.myId)).set({uid:S.myId,nick:v,joinedAt:me()?.joinedAt||Date.now(),away:false}));
+  S.hbAt=Date.now();
+  await write(()=>S.db.collection('players').doc(seg(S.myId)).set({uid:S.myId,nick:v,joinedAt:me()?.joinedAt||Date.now(),away:false,lastSeen:serverTs()}));
 }
 async function toggleAway(){const p=me(); if(!p) return;
-  await write(()=>S.db.collection('players').doc(seg(S.myId)).set({...p,away:!p.away}));}
+  await write(()=>S.db.collection('players').doc(seg(S.myId)).update({away:!p.away}));}
+let hbBusy=false;
+async function heartbeat(){
+  if(!S.db||!me()||hbBusy||document.visibilityState==='hidden') return;
+  hbBusy=true; S.hbAt=Date.now();
+  try{await S.db.collection('players').doc(seg(S.myId)).update({lastSeen:serverTs()})}catch(e){}
+  hbBusy=false;
+}
+async function resetBoard(){
+  const info=S.current>=S.startFrom?roundInfo(S.current):null;
+  if(info&&info.phase==='write'){toast('Đợi vòng đang chơi kết thúc rồi hãy chơi lại');return}
+  const ok=await write(()=>S.db.doc('game/state').set({current:S.current,startFrom:S.current+1}));
+  if(ok){S.confirmReset=false;S.pick=null;toast('Đã xoá bảng điểm. Bắt đầu lại từ vòng 1!')}
+}
 async function startRound(){
-  const w=VOCAB.find(v=>v.w===S.pick); if(!w){toast('Chọn một từ khoá trước');return}
-  const parts=playerList().filter(p=>!p.away).map(p=>p.uid);
-  if(!parts.length){toast('Chưa có ai trong phòng');return}
+  const w=VOCAB.find(v=>wkey(v)===S.pick); if(!w){toast('Chọn một từ khoá trước');return}
+  const parts=playerList().filter(p=>!p.away&&isOnline(p)).map(p=>p.uid);
+  if(!parts.includes(S.myId)&&!me()?.away) parts.push(S.myId);
+  if(!parts.length){toast('Chưa có ai đang online trong phòng');return}
   const n=Math.max(S.current,...Object.values(S.rounds).map(r=>r.n||0),0)+1;
   const ok=await write(async()=>{
     await S.db.doc('rounds/r'+n).set({n,word:w,duration:S.duration,startedAt:Date.now(),by:S.myId,participants:parts});
-    await S.db.doc('game/state').set({current:n});
+    await S.db.doc('game/state').set({current:n,startFrom:S.startFrom});
   });
   if(ok){S.pick=null;S.draft='';S.draftGrades={}}
 }
@@ -292,56 +319,70 @@ async function submitGrades(){
 
 /* ---------- render ---------- */
 function renderChips(){
-  const info=S.current?roundInfo(S.current):null;
-  $('#chips').innerHTML=playerList().map(p=>{
-    let st='rảnh';
+  const info=S.current>=S.startFrom?roundInfo(S.current):null;
+  const inRounds=new Set(visibleRounds().flatMap(r=>r.participants||[]));
+  const list=playerList().filter(p=>isOnline(p)||inRounds.has(p.uid)).sort((a,b)=>isOnline(b)-isOnline(a));
+  $('#chips').innerHTML=list.map(p=>{
+    let st='chờ vòng sau';
+    const off=!isOnline(p);
     if(p.away) st='tạm nghỉ';
+    else if(off) st='vắng';
     else if(info&&info.parts.includes(p.uid)){
       const sub=info.answers.some(a=>a.uid===p.uid), gr=info.grades.some(g=>g.grader===p.uid);
       st=info.phase==='write'?(sub?'đã nộp':'đang viết'):(gr?'chấm xong':'đang chấm');
     }
-    return `<span class="pchip${p.uid===S.myId?' me':''}${p.away?' away':''}"><span class="av" style="background:${colorOf(p.uid)}">${esc((p.nick||'?').slice(0,1).toUpperCase())}</span>${esc(p.nick)}<span class="st">· ${st}</span></span>`;
+    return `<span class="pchip${p.uid===S.myId?' me':''}${p.away||off?' away':''}"><span class="av" style="background:${colorOf(p.uid)}">${esc((p.nick||'?').slice(0,1).toUpperCase())}</span>${esc(p.nick)}<span class="st">· ${st}</span></span>`;
   }).join('')||'<span class="hint">Chưa có ai vào phòng</span>';
 }
 
 function wordCard(w,showExtra=true){
   return `<div class="wordcard">
-    <div class="label">Từ khoá</div>
+    <div class="label">Từ khoá · ${esc(lessonTag(w))}</div>
     <div class="tzg">${[...w.w].map(c=>`<span><b>${esc(c)}</b></span>`).join('')}</div>
     <div class="py">${esc(w.p)}</div>
     ${showExtra?`<div class="mean">${w.t?`<span class="tag">${esc(w.t)}</span> `:''}${esc(w.m)}</div>`:''}
   </div>`;
 }
 function pickerHTML(){
-  const used=new Set(Object.values(S.rounds).map(r=>r.word?.w));
-  const groups=['Từ chính','Phó bài khoá','Bài đọc'];
+  const used=new Set(visibleRounds().map(r=>wkey(r.word)));
+  const pool=S.lesson==='all'?VOCAB:VOCAB.filter(v=>String(v.L)===S.lesson);
+  const usedHere=pool.filter(v=>used.has(wkey(v))).length;
+  const groups=['Từ chính','Từ mở rộng','Bài đọc'];
+  const picked=VOCAB.find(v=>wkey(v)===S.pick);
+  const online=playerList().filter(p=>!p.away&&isOnline(p));
   return `<div class="panel picker">
-    <div class="secthead" style="margin:0"><h2>Ra đề vòng tiếp theo</h2><span class="hint">${used.size}/${VOCAB.length} từ đã dùng</span></div>
-    <div class="wgroups">${groups.map(g=>`<div class="wg"><div class="lb">${g}</div><div class="words">${
-      VOCAB.filter(v=>v.g===g).map(v=>`<button type="button" data-pick="${esc(v.w)}" title="${esc(v.p+' — '+v.m)}" class="${used.has(v.w)?'used':''}" aria-pressed="${S.pick===v.w}">${esc(v.w)}</button>`).join('')
-    }</div></div>`).join('')}</div>
+    <div class="secthead" style="margin:0"><h2>Ra đề vòng tiếp theo</h2><span class="hint">${usedHere}/${pool.length} từ đã dùng</span></div>
+    <div class="row"><label class="hint" for="lesson">Bài</label>
+      <select id="lesson">${LESSON_IDS.map(L=>`<option value="${L}"${S.lesson===String(L)?' selected':''}>Bài ${L} · ${esc(LESSONS[L].title)}</option>`).join('')}
+        <option value="all"${S.lesson==='all'?' selected':''}>Trộn tất cả (bài ${LESSON_IDS[0]}–${LESSON_IDS[LESSON_IDS.length-1]})</option></select></div>
+    ${S.lesson==='all'
+      ?`<div class="hint">Bấm <b>Bốc ngẫu nhiên</b> để lấy một từ bất kỳ trong ${pool.length} từ của các bài.${picked?` Đã bốc: <b class="kw" style="font-family:var(--f-hz)">${esc(picked.w)}</b> (${esc(lessonTag(picked))})`:''}</div>`
+      :`<div class="wgroups">${groups.filter(g=>pool.some(v=>v.g===g)).map(g=>`<div class="wg"><div class="lb">${g}</div><div class="words">${
+      pool.filter(v=>v.g===g).map(v=>`<button type="button" data-pick="${esc(wkey(v))}" title="${esc(v.p+' — '+v.m)}" class="${used.has(wkey(v))?'used':''}" aria-pressed="${S.pick===wkey(v)}">${esc(v.w)}</button>`).join('')
+    }</div></div>`).join('')}</div>`}
+    <div class="hint">Người chơi vòng này: ${online.map(p=>esc(p.nick)).join(', ')||'chưa có ai online'}</div>
     <div class="row">
       <button type="button" class="btn ghost small" id="rand">Bốc ngẫu nhiên</button>
       <label class="hint" for="dur">Thời gian</label>
       <select id="dur">${[60,90,120,180].map(d=>`<option value="${d}"${S.duration===d?' selected':''}>${d} giây</option>`).join('')}</select>
       <span style="flex:1"></span>
-      <button type="button" class="btn" id="start" ${S.pick?'':'disabled'}>Ra đề${S.pick?': '+esc(S.pick):''}</button>
+      <button type="button" class="btn" id="start" ${picked?'':'disabled'}>Ra đề${picked?': '+esc(picked.w):''}</button>
     </div>
   </div>`;
 }
 
 function renderStage(){
   const app=$('#app');
-  if(!S.myId){app.innerHTML=`<div class="panel empty">Mở trang này trên claude.ai khi đã đăng nhập để vào phòng.</div>`;return}
+  if(!S.myId){app.innerHTML=`<div class="panel empty">Đang vào phòng…</div>`;return}
   const p=me();
-  const n=S.current, info=n?roundInfo(n):null;
+  const n=S.current>=S.startFrom?S.current:0, info=n?roundInfo(n):null;
   const mineSub=info?info.answers.some(a=>a.uid===S.myId):false;
   const mineGr=info?info.grades.some(g=>g.grader===S.myId):false;
   const amIn=info?info.parts.includes(S.myId):false;
   let sig=JSON.stringify([!!p,p?.nick,p?.away,n,info?.phase,mineSub,mineGr,info?.done,
     info&&info.phase==='grade'?info.answers.map(a=>a.uid):0,
     info&&info.phase==='grade'&&(mineGr||!amIn)?info.grades.map(g=>g.grader+g.at):0,
-    (!info||info.phase==='grade')?[S.pick,S.duration,Object.keys(S.rounds).length]:0]);
+    (!info||info.phase==='grade')?[S.pick,S.duration,S.lesson,S.startFrom,visibleRounds().length,playerList().filter(p=>!p.away&&isOnline(p)).map(p=>p.nick)]:0]);
   if(sig===S.stageSig){renderLive(info);return}
   S.stageSig=sig;
   const fid=document.activeElement?.id, fsel=document.activeElement?.selectionStart;
@@ -351,7 +392,8 @@ function renderStage(){
     app.innerHTML=`<div class="panel join">
       <h2>Vào phòng học nhóm</h2>
       <ol class="rules">
-        <li>Mỗi vòng cả nhóm nhận cùng một từ khoá của bài 14 và đặt câu có từ đó.</li>
+        <li>Mỗi vòng cả nhóm nhận cùng một từ khoá (bài 11–14, Msutong Trung cấp 2) và đặt câu có từ đó.</li>
+        <li>Ai đang mở trang lúc ra đề thì được tính vào vòng đó, không cần vào cùng lúc từ đầu.</li>
         <li>Câu của người khác bị che cho tới khi tất cả nộp xong hoặc hết giờ.</li>
         <li>Nộp nhanh được thưởng: nhất +3, nhì +2, ba +1.</li>
         <li>Mỗi người chấm câu của những người còn lại theo 3 tiêu chí (tổng 5 điểm). Điểm vòng = trung bình × 2 + thưởng tốc độ.</li>
@@ -372,16 +414,16 @@ function renderStage(){
     left=`<div class="panel">${wordCard(info.r.word)}
       <div class="timer" id="timer"><div class="num" id="tnum">--</div><div class="bar"><i id="tbar"></i></div></div></div>`;
     let work;
-    if(!amIn) work=`<div class="hint">Bạn vào sau khi vòng ${n} bắt đầu nên vòng này chỉ xem. Vòng sau bạn sẽ được tham gia.</div>`;
+    if(!amIn) work=`<div class="hint">Bạn vào sau khi vòng ${disp(n)} bắt đầu nên vòng này chỉ xem. Vòng sau bạn sẽ được tham gia.</div>`;
     else if(mineSub){const a=info.answers.find(a=>a.uid===S.myId);
       work=`<div class="ans"><div class="hd">${medal(info.answers.indexOf(a)+1)}<span class="hint">Đã nộp sau ${secs(a.elapsedMs)}</span></div><div class="sent">${hl(a.text,info.r.word.w)}</div></div><div class="hint">Chờ mọi người nộp xong…</div>`;}
-    else work=`<label class="label" for="draft">Câu của bạn (vòng ${n})</label>
+    else work=`<label class="label" for="draft">Câu của bạn (vòng ${disp(n)})</label>
       <textarea id="draft" placeholder="用「${esc(info.r.word.w)}」造句……">${esc(S.draft)}</textarea>
       <div class="row"><span class="hint" id="kwhint"></span><span style="flex:1"></span><button type="button" class="btn" id="submit">Nộp câu</button></div>`;
     right=`<div class="panel work">${work}<div><div class="label" style="margin-bottom:6px">Tiến độ</div><div class="status-list" id="slist"></div></div></div>`;
   } else {
     const w=info.r.word;
-    left=`<div class="panel">${wordCard(w)}<div class="hint" style="text-align:center;margin-top:8px">Vòng ${n} · ${info.done?'đã chấm xong':'đang chấm chéo'}</div></div>`;
+    left=`<div class="panel">${wordCard(w)}<div class="hint" style="text-align:center;margin-top:8px">Vòng ${disp(n)} · ${info.done?'đã chấm xong':'đang chấm chéo'}</div></div>`;
     const showRecv=mineGr||!amIn;
     const cards=info.answers.map((a,i)=>{
       const mine=a.uid===S.myId, has=a.text.includes(w.w);
@@ -437,8 +479,9 @@ function renderLive(info){
 }
 
 function renderSheet(){
-  const players=playerList();
-  const rounds=Object.values(S.rounds).sort((a,b)=>a.n-b.n);
+  const rounds=visibleRounds();
+  const inR=new Set(rounds.flatMap(r=>r.participants||[]));
+  const players=playerList().filter(p=>inR.has(p.uid));
   const t=$('#sheet');
   t.style.minWidth=(!rounds.length||!players.length)?'0':'';
   if(!rounds.length||!players.length){t.innerHTML=`<tbody><tr><td class="empty">Chưa có vòng nào. Điểm của mỗi vòng sẽ hiện ở đây.</td></tr></tbody>`;return}
@@ -453,7 +496,7 @@ function renderSheet(){
       totals[p.uid]+=s.total;
       return `<td class="sc">${medal(s.rank)} ${s.total.toFixed(1)}${s.count?'':' <span class="x">chờ chấm</span>'}</td>`}).join('');
     const open=S.openRow===r.n;
-    body+=`<tr class="r${open?' open':''}" data-row="${r.n}" tabindex="0"><td class="rn">${r.n}</td><td class="kw">${esc(r.word.w)}<small>${esc(r.word.p)}</small></td>${cells}</tr>`;
+    body+=`<tr class="r${open?' open':''}" data-row="${r.n}" tabindex="0"><td class="rn">${disp(r.n)}</td><td class="kw">${esc(r.word.w)}<small>${esc(r.word.p)} · B${r.word.L||14}</small></td>${cells}</tr>`;
     if(open){
       const info=roundInfo(r.n);
       const det=info.phase==='write'?'<div class="hint">Vòng đang diễn ra, câu sẽ hiện sau khi lộ bài.</div>':
@@ -470,12 +513,22 @@ function renderSheet(){
     <tfoot><tr><td class="rn">Σ</td><td>Tổng</td>${players.map(p=>`<td class="${totals[p.uid]===best&&best>0?'lead':''}">${totals[p.uid].toFixed(1)}</td>`).join('')}</tr></tfoot>`;
 }
 
-function render(){renderChips();renderStage();renderSheet()}
+function renderReset(){
+  const box=$('#resetBox'); if(!box) return;
+  if(!me()||!visibleRounds().length){box.innerHTML='';return}
+  box.innerHTML=S.confirmReset
+    ?`<span class="row" style="gap:6px"><span class="hint warn">Xoá bảng điểm hiện tại cho cả nhóm?</span><button type="button" class="btn small" id="resetYes" style="background:var(--seal)">Xoá và chơi lại</button><button type="button" class="btn ghost small" id="resetNo">Huỷ</button></span>`
+    :`<button type="button" class="btn ghost small" id="resetAsk">Chơi lại từ đầu</button>`;
+}
+function render(){renderChips();renderStage();renderSheet();renderReset()}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
   const b=e.target.closest('button,tr.r'); if(!b) return;
   if(b.dataset.pick){S.pick=b.dataset.pick;renderStage();return}
+  if(b.id==='resetAsk'){S.confirmReset=true;renderReset();return}
+  if(b.id==='resetNo'){S.confirmReset=false;renderReset();return}
+  if(b.id==='resetYes'){resetBoard();return}
   if(b.dataset.g){const u=b.dataset.g,d=S.draftGrades[u]||{};S.draftGrades[u]={...d,c:{...(d.c||{}),[b.dataset.k]:+b.dataset.v}};
     b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
     const info=roundInfo(S.current),a=info?.answers.find(x=>x.uid===u),el=document.getElementById('sum_'+seg(u));
@@ -483,8 +536,10 @@ document.addEventListener('click',e=>{
   if(b.dataset.row){const n=+b.dataset.row;S.openRow=S.openRow===n?null:n;renderSheet();return}
   switch(b.id){
     case 'joinBtn':join();break;
-    case 'rand':{const used=new Set(Object.values(S.rounds).map(r=>r.word?.w));const pool=VOCAB.filter(v=>!used.has(v.w));
-      const src=pool.length?pool:VOCAB;S.pick=src[Math.floor(Math.random()*src.length)].w;renderStage();break}
+    case 'rand':{const used=new Set(visibleRounds().map(r=>wkey(r.word)));
+      const all=S.lesson==='all'?VOCAB:VOCAB.filter(v=>String(v.L)===S.lesson);
+      const pool=all.filter(v=>!used.has(wkey(v)));const src=pool.length?pool:all;
+      S.pick=wkey(src[Math.floor(Math.random()*src.length)]);renderStage();break}
     case 'start':startRound();break;
     case 'submit':submitAnswer();break;
     case 'sendGrades':submitGrades();break;
@@ -500,13 +555,18 @@ document.addEventListener('input',e=>{
   if(e.target.id==='draft'){S.draft=e.target.value;renderLive(roundInfo(S.current))}
   if(e.target.dataset.note){const u=e.target.dataset.note;S.draftGrades[u]={...(S.draftGrades[u]||{}),note:e.target.value}}
 });
-document.addEventListener('change',e=>{if(e.target.id==='dur') S.duration=+e.target.value});
+document.addEventListener('change',e=>{
+  if(e.target.id==='dur') S.duration=+e.target.value;
+  if(e.target.id==='lesson'){S.lesson=e.target.value;S.pick=null;try{localStorage.setItem('dcn_lesson',S.lesson)}catch(err){};renderStage()}
+});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){heartbeat();renderChips()}});
 
 /* ---------- boot ---------- */
 function roomName(){
   const raw=(new URLSearchParams(location.search).get('phong')||location.hash.slice(1)||'nhom-hsk4');
   return decodeURIComponent(raw).toLowerCase().replace(/[^a-z0-9_-]/g,'-').slice(0,40)||'nhom-hsk4';
 }
+function serverTs(){return firebase.firestore.FieldValue.serverTimestamp()}
 function fail(msg){$('#app').innerHTML=`<div class="panel empty">${msg}</div>`}
 async function boot(){
   const cfg=window.FIREBASE_CONFIG;
@@ -516,23 +576,30 @@ async function boot(){
   try{const cred=await firebase.auth().signInAnonymously();S.myId=cred.user.uid}
   catch(e){fail('Không vào phòng được ('+esc(e.code||e.message)+'). Kiểm tra đã bật đăng nhập Anonymous trong Firebase chưa.');return}
   const fs=firebase.firestore();
-  const room=roomName(), base='rooms/'+room+'/';
+  const room=roomName(), base='rooms/'+room+'/'; S.room=room;
   S.db={collection:p=>fs.collection(base+p),doc:p=>fs.doc(base+p)};
   const db=S.db;
-  $('.brand .s').textContent='Phòng: '+room+' · 照片还是“照骗”？';
+  $('.brand .s').textContent='Phòng: '+room+' · Msutong Trung cấp 2';
   const slow=setTimeout(()=>{if(!S.loaded) fail('Chưa tải được dữ liệu phòng. Kiểm tra mạng rồi đợi thêm chút.')},10000);
   const err=e=>{clearTimeout(slow);$('#banner').innerHTML=`<div class="banner">Lỗi kết nối dữ liệu (${esc(e?.code||'')}). Kiểm tra Firestore rules trong HUONG-DAN.md.</div>`};
-  const coll=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S[key]=o;render()},err);
+  const coll=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data({serverTimestamps:'estimate'}));S[key]=o;
+    if(key==='players'){const mine=s.docs.find(d=>d.id===seg(S.myId));
+      if(mine&&!mine.metadata?.hasPendingWrites&&S.hbAt){const t=ms(mine.data().lastSeen);if(t) S.offset=t-S.hbAt;S.hbAt=0}
+      if(mine&&!S.hbStarted){S.hbStarted=true;heartbeat();setInterval(heartbeat,45000)}}
+    render()},err);
   coll('players','players');coll('rounds','rounds');coll('ans','ans');coll('grades','grades');
   db.doc('game/state').onSnapshot(d=>{
     const c=d.exists?(d.data().current||0):0;
-    if(c!==S.current){S.current=c;S.draft='';S.draftGrades={};if(c) getSeen(c)}
+    const sf=d.exists?(d.data().startFrom||1):1;
+    if(sf!==S.startFrom){S.startFrom=sf;S.openRow=null;S.stageSig=''}
+    if(c!==S.current){S.current=c;S.draft='';S.draftGrades={}}
     if(!d.metadata.fromCache){S.loaded=true;clearTimeout(slow)}
     render();
   },err);
   let lastPhase='';
   setInterval(()=>{if(!S.current) return;const info=roundInfo(S.current);
-    if(info&&info.phase!==lastPhase){lastPhase=info.phase;renderStage();renderChips();renderSheet()} else renderLive(info)},250);
+    if(info&&info.phase!==lastPhase){lastPhase=info.phase;render()} else renderLive(info)},250);
+  setInterval(()=>{renderChips();renderStage()},15000);
 }
 window.addEventListener('hashchange',()=>location.reload());
 renderSheet();
