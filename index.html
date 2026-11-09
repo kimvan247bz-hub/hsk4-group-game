@@ -37,7 +37,7 @@ button{cursor:pointer}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sheet);border-bottom:1px solid var(--line)}
 header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:10px}
 .brand{display:flex;align-items:baseline;gap:10px;min-width:0}
-.brand .hz{font-family:var(--f-hz);font-weight:900;font-size:1.6rem;color:var(--jade);letter-spacing:.02em}
+.brand .hz{font-family:var(--f-hz);font-weight:900;font-size:1.6rem;color:var(--jade);letter-spacing:.02em;white-space:nowrap;flex:none}
 .brand .t{font-weight:800;font-size:1.02rem}
 .brand .s{color:var(--muted);font-size:.82rem}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
@@ -46,7 +46,8 @@ header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;pa
 .pchip .st{font-size:.75rem;color:var(--muted)}
 .pchip.me{border-color:var(--jade)}
 .pchip.away{opacity:.5}
-main{padding-block:20px 48px;display:grid;gap:22px}
+main{padding-block:20px 48px;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+main>*{min-width:0}
 .grid2{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:start}
 @media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:18px}
@@ -99,9 +100,20 @@ input[type=text]{padding:8px 12px;border:1px solid var(--line);border-radius:8px
 .ans .sent{font-family:var(--f-hz);font-size:1.25rem;line-height:1.7;overflow-wrap:anywhere}
 mark{background:var(--gold-soft);color:var(--ink);padding:0 2px;border-radius:3px}
 .miss{font-size:.78rem;color:var(--seal);font-weight:600}
-.pts{display:flex;gap:4px;flex-wrap:wrap}
-.pts button{width:38px;height:34px;border-radius:7px;border:1px solid var(--line);background:var(--paper);font-family:var(--f-num);font-weight:700}
+.rubric{display:grid;gap:10px}
+.crit{display:grid;gap:5px}
+.crit .cn{font-size:.8rem;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.crit .cn span{color:var(--muted);font-weight:500}
+.pts{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px}
+.pts button{min-height:40px;border-radius:7px;border:1px solid var(--line);background:var(--paper);font-size:.8rem;line-height:1.25;padding:5px 8px;text-align:left;display:flex;gap:6px;align-items:flex-start}
+.pts button b{font-family:var(--f-num)}
 .pts button[aria-pressed=true]{background:var(--jade);border-color:var(--jade);color:var(--sheet)}
+.pts button:disabled{cursor:not-allowed}
+@media (max-width:520px){.pts{grid-template-columns:minmax(0,1fr)}}
+.sum{font-family:var(--f-num);font-weight:700;color:var(--jade)}
+.legend{display:grid;gap:6px;font-size:.84rem}
+.legend b{font-weight:700}
+.legend .lv{color:var(--muted)}
 .recv{display:grid;gap:4px;font-size:.86rem;border-top:1px dashed var(--line);padding-top:8px}
 .recv .g{display:flex;gap:8px}
 .recv .g b{font-family:var(--f-num);color:var(--jade);min-width:22px}
@@ -169,6 +181,16 @@ const VOCAB = [{"w":"颜色","p":"yánsè","t":"N","m":"màu sắc","e":"好像�
 const BONUS = [3,2,1,0];
 const S = {db:null,user:null,myId:null,players:{},rounds:{},ans:{},grades:{},current:0,loaded:false,
   draft:'',draftGrades:{},pick:null,duration:90,openRow:null,busy:false,stageSig:''};
+const RUBRIC=[
+  {k:'tu',name:'Dùng từ khoá',short:'Từ',levels:['Thiếu từ khoá hoặc dùng sai nghĩa','Có từ nhưng dùng gượng, sai vị trí hoặc từ loại','Đúng nghĩa, đúng cách dùng, tự nhiên']},
+  {k:'np',name:'Ngữ pháp và chữ viết',short:'NP',levels:['Sai nặng, đọc khó hiểu','Có 1–2 lỗi nhỏ (trợ từ, lượng từ, sai chữ…)','Không có lỗi']},
+  {k:'kho',name:'Độ khó',short:'Khó',levels:['Câu đơn giản, một vế','Có 2 vế trở lên hoặc dùng cấu trúc HSK4 (不管…都, 因为…所以, V₁了+V₂…)']}
+];
+function critText(m){return m?.c?RUBRIC.map(r=>r.short+' '+(m.c[r.k]??'-')).join(' · '):''}
+function sumText(uid,has){const c=S.draftGrades[uid]?.c||{};let s=0,n=0;
+  for(const r of RUBRIC){const v=(r.k==='tu'&&!has)?0:c[r.k];if(typeof v==='number'){s+=v;n++}}
+  return n===RUBRIC.length?s+'/5':(n?s+'/5 (chưa chấm đủ)':'chưa chấm')}
+function legendHTML(){return `<div class="legend">${RUBRIC.map(r=>`<div><b>${r.name} (0–${r.levels.length-1})</b><div class="lv">${r.levels.map((l,i)=>i+' = '+l).join(' · ')}</div></div>`).join('')}</div>`}
 const seen = {};
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -259,8 +281,12 @@ async function submitGrades(){
   const n=S.current, info=roundInfo(n);
   const targets=info.answers.filter(a=>a.uid!==S.myId);
   const marks={};
-  for(const a of targets){const d=S.draftGrades[a.uid]; if(!d||typeof d.pts!=='number'){toast('Chấm đủ điểm cho '+nick(a.uid)+' nhé');return}
-    marks[a.uid]={pts:d.pts,note:(d.note||'').trim().slice(0,200)}}
+  for(const a of targets){
+    const d=S.draftGrades[a.uid]||{}, c={...(d.c||{})};
+    if(!a.text.includes(info.r.word.w)) c.tu=0;
+    const miss=RUBRIC.find(r=>typeof c[r.k]!=='number');
+    if(miss){toast('Chấm mục “'+miss.name+'” cho '+nick(a.uid)+' nhé');return}
+    marks[a.uid]={pts:RUBRIC.reduce((s,r)=>s+c[r.k],0),c,note:(d.note||'').trim().slice(0,200)}}
   await write(()=>S.db.doc('grades/r'+n+'_'+seg(S.myId)).set({round:n,grader:S.myId,marks,at:Date.now()}));
 }
 
@@ -328,7 +354,7 @@ function renderStage(){
         <li>Mỗi vòng cả nhóm nhận cùng một từ khoá của bài 14 và đặt câu có từ đó.</li>
         <li>Câu của người khác bị che cho tới khi tất cả nộp xong hoặc hết giờ.</li>
         <li>Nộp nhanh được thưởng: nhất +3, nhì +2, ba +1.</li>
-        <li>Mỗi người chấm câu của những người còn lại từ 0 đến 5. Điểm vòng = trung bình × 2 + thưởng tốc độ.</li>
+        <li>Mỗi người chấm câu của những người còn lại theo 3 tiêu chí (tổng 5 điểm). Điểm vòng = trung bình × 2 + thưởng tốc độ.</li>
       </ol>
       <label class="label" for="nick">Tên hiển thị</label>
       <input type="text" id="nick" maxlength="24" placeholder="Ví dụ: Vân">
@@ -362,11 +388,15 @@ function renderStage(){
       let foot='';
       if(!mine&&amIn&&!mineGr){
         const d=S.draftGrades[a.uid]||{};
-        foot=`<div class="row"><span class="hint">Chấm:</span><div class="pts">${[0,1,2,3,4,5].map(v=>`<button type="button" data-g="${esc(a.uid)}" data-v="${v}" aria-pressed="${d.pts===v}">${v}</button>`).join('')}</div></div>
+        const c=d.c||{};
+        foot=`<div class="rubric">${RUBRIC.map(r=>{const lock=r.k==='tu'&&!has, val=lock?0:c[r.k];
+          return `<div class="crit"><div class="cn">${r.name}${lock?'<span>tự động 0 vì thiếu từ khoá</span>':''}</div><div class="pts">${r.levels.map((l,v)=>
+            `<button type="button" data-g="${esc(a.uid)}" data-k="${r.k}" data-v="${v}" aria-pressed="${val===v}"${lock?' disabled':''}><b>${v}</b><span>${esc(l)}</span></button>`).join('')}</div></div>`}).join('')}
+          <div class="hint">Tổng: <span class="sum" id="sum_${seg(a.uid)}">${sumText(a.uid,has)}</span></div></div>
         <input type="text" id="note_${seg(a.uid)}" data-note="${esc(a.uid)}" maxlength="200" placeholder="Góp ý / sửa câu (không bắt buộc)" value="${esc(d.note||'')}">`;
       } else if(showRecv){
         const rec=info.grades.filter(g=>g.marks?.[a.uid]);
-        foot=rec.length?`<div class="recv">${rec.map(g=>`<div class="g"><b>${g.marks[a.uid].pts}</b><span>${esc(nick(g.grader))}${g.marks[a.uid].note?': '+esc(g.marks[a.uid].note):''}</span></div>`).join('')}</div>`:`<div class="hint">Chưa ai chấm câu này.</div>`;
+        foot=rec.length?`<div class="recv">${rec.map(g=>{const m=g.marks[a.uid];return `<div class="g"><b>${m.pts}</b><span>${esc(nick(g.grader))}${m.c?' <span class="hint">('+critText(m)+')</span>':''}${m.note?': '+esc(m.note):''}</span></div>`}).join('')}</div>`:`<div class="hint">Chưa ai chấm câu này.</div>`;
       }
       return `<div class="ans"><div class="hd">${medal(i+1)}<b>${esc(nick(a.uid))}${mine?' (bạn)':''}</b><span class="hint">${secs(a.elapsedMs)} · +${BONUS[i]??0}</span>${has?'':'<span class="miss">thiếu từ khoá</span>'}</div>
         <div class="sent">${hl(a.text,w.w)}</div>${foot}</div>`;
@@ -380,6 +410,7 @@ function renderStage(){
       ${cards||'<div class="hint">Không ai nộp câu trong vòng này.</div>'}
       ${missing.length?`<div class="hint warn">Không nộp: ${missing.map(m=>esc(nick(m))).join(', ')}</div>`:''}
       ${action}
+      ${amIn&&!mineGr?`<details class="model"><summary class="label" style="cursor:pointer">Xem tiêu chí chấm</summary>${legendHTML()}</details>`:''}
       <div class="model"><div class="label">Câu mẫu trong sách</div><div class="zh">${hl(w.e,w.w)}</div></div>
     </div>${pickerHTML()}`;
   }
@@ -409,6 +440,7 @@ function renderSheet(){
   const players=playerList();
   const rounds=Object.values(S.rounds).sort((a,b)=>a.n-b.n);
   const t=$('#sheet');
+  t.style.minWidth=(!rounds.length||!players.length)?'0':'';
   if(!rounds.length||!players.length){t.innerHTML=`<tbody><tr><td class="empty">Chưa có vòng nào. Điểm của mỗi vòng sẽ hiện ở đây.</td></tr></tbody>`;return}
   const L='ABCDEFGHIJKLMNOP';
   const totals=Object.fromEntries(players.map(p=>[p.uid,0]));
@@ -426,7 +458,7 @@ function renderSheet(){
       const info=roundInfo(r.n);
       const det=info.phase==='write'?'<div class="hint">Vòng đang diễn ra, câu sẽ hiện sau khi lộ bài.</div>':
         (info.answers.map((a,i)=>{const rec=info.grades.filter(g=>g.marks?.[a.uid]);
-          return `<div class="d"><div>${medal(i+1)} <b>${esc(nick(a.uid))}</b> <span class="hint">${secs(a.elapsedMs)}</span></div><div class="zh">${hl(a.text,r.word.w)}</div>${rec.map(g=>`<div class="nt">${esc(nick(g.grader))} chấm ${g.marks[a.uid].pts}${g.marks[a.uid].note?' — '+esc(g.marks[a.uid].note):''}</div>`).join('')}</div>`}).join('')||'<div class="hint">Không ai nộp.</div>')
+          return `<div class="d"><div>${medal(i+1)} <b>${esc(nick(a.uid))}</b> <span class="hint">${secs(a.elapsedMs)}</span></div><div class="zh">${hl(a.text,r.word.w)}</div>${rec.map(g=>`<div class="nt">${esc(nick(g.grader))} chấm ${g.marks[a.uid].pts}/5${g.marks[a.uid].c?' ('+critText(g.marks[a.uid])+')':''}${g.marks[a.uid].note?' — '+esc(g.marks[a.uid].note):''}</div>`).join('')}</div>`}).join('')||'<div class="hint">Không ai nộp.</div>')
         +`<div class="d"><div class="nt">Câu mẫu: <span class="zh">${esc(r.word.e)}</span> · ${esc(r.word.m)}</div></div>`;
       body+=`<tr class="detail"><td></td><td colspan="${players.length+1}"><div class="det">${det}</div></td></tr>`;
     }
@@ -444,8 +476,10 @@ function render(){renderChips();renderStage();renderSheet()}
 document.addEventListener('click',e=>{
   const b=e.target.closest('button,tr.r'); if(!b) return;
   if(b.dataset.pick){S.pick=b.dataset.pick;renderStage();return}
-  if(b.dataset.g){const u=b.dataset.g;S.draftGrades[u]={...(S.draftGrades[u]||{}),pts:+b.dataset.v};
-    b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));return}
+  if(b.dataset.g){const u=b.dataset.g,d=S.draftGrades[u]||{};S.draftGrades[u]={...d,c:{...(d.c||{}),[b.dataset.k]:+b.dataset.v}};
+    b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    const info=roundInfo(S.current),a=info?.answers.find(x=>x.uid===u),el=document.getElementById('sum_'+seg(u));
+    if(el&&a) el.textContent=sumText(u,a.text.includes(info.r.word.w));return}
   if(b.dataset.row){const n=+b.dataset.row;S.openRow=S.openRow===n?null:n;renderSheet();return}
   switch(b.id){
     case 'joinBtn':join();break;
@@ -500,6 +534,7 @@ async function boot(){
   setInterval(()=>{if(!S.current) return;const info=roundInfo(S.current);
     if(info&&info.phase!==lastPhase){lastPhase=info.phase;renderStage();renderChips();renderSheet()} else renderLive(info)},250);
 }
+window.addEventListener('hashchange',()=>location.reload());
 renderSheet();
 boot();
 </script>
